@@ -3,6 +3,8 @@
 
 #include "FeatureLayerQuery.h"
 
+#include <rapidjson/reader.h>
+
 // Sets default values
 AFeatureLayerQuery::AFeatureLayerQuery()
 {
@@ -36,6 +38,20 @@ void AFeatureLayerQuery::OnResponseReceived(FHttpRequestPtr Request, FHttpRespon
 
 	TSharedPtr<FJsonObject> responseObject;
 	const auto ResponseBody = Response-> GetContentAsString();
+	auto Reader = TJsonReaderFactory<>::Create(ResponseBody);
+
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *ResponseBody);
+
+	if (FJsonSerializer::Deserialize(Reader, responseObject))
+	{
+		auto features = responseObject->GetArrayField(TEXT("features"));
+
+		for(auto feature : features)
+		{
+			FProperties currentFeature;
+			
+		}
+	}
 }
 
 void AFeatureLayerQuery::ProcessRequest()
