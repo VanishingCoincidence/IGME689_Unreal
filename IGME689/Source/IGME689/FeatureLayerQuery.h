@@ -13,11 +13,11 @@ struct FGeometries
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<float> Geometry;
 };
 
-USTRUCT(BlueprintType)
+USTRUCT(Blueprintable)
 struct FProperties
 {
 	GENERATED_BODY()
@@ -56,7 +56,7 @@ public:
 	virtual void OnResponseReceived(FHttpRequestPtr Request, FHttpResponsePtr Response, bool bSucceeded);
 	virtual void ProcessRequest();
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TArray<FProperties> features;
 
 private:
