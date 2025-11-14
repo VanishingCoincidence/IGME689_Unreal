@@ -23,16 +23,16 @@ struct FProperties
 	GENERATED_BODY()
 
 public:
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
 	FString Name;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
 	int Altitude;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
 	FString Location;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Properties")
 	int Length;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Geometry")
 	TArray<FGeometries> Geometries;
-	//TArray<FString> Properties;
 	
 };
 
