@@ -44,12 +44,32 @@ void AFeatureLayerQuery::OnResponseReceived(FHttpRequestPtr Request, FHttpRespon
 
 	if (FJsonSerializer::Deserialize(Reader, responseObject))
 	{
-		auto features = responseObject->GetArrayField(TEXT("features"));
+		auto allFeatures = responseObject->GetArrayField(TEXT("features"));
 
-		for(auto feature : features)
+		for(auto feature : allFeatures)
 		{
 			FProperties currentFeature;
-			
+			auto coordinates = feature->AsObject()->GetObjectField(TEXT("geometry"))->GetArrayField(TEXT("coordinates"));
+            auto name = feature->AsObject()->GetObjectField(TEXT("properties"))->GetStringField("Name");
+            auto location = feature->AsObject()->GetObjectField(TEXT("properties"))->GetStringField("location");
+            auto altitude = feature->AsObject()->GetObjectField(TEXT("properties"))->GetIntegerField("altitude");
+            auto length = feature->AsObject()->GetObjectField(TEXT("properties"))->GetIntegerField("length");
+            
+            currentFeature.Name = name;
+            currentFeature.Altitude = altitude;
+            currentFeature.Location = location;
+            currentFeature.Length = length;
+            
+            for (int i = 0; i < coordinates.Num(); i++)
+            {
+            	auto thisGeometry = coordinates[i]->AsArray();
+            	FGeometries geometry;
+            	geometry.Geometry.Add(thisGeometry[0]->AsNumber());
+            	geometry.Geometry.Add(thisGeometry[1]->AsNumber());
+            	currentFeature.Geometries.Add(geometry);
+            }
+            
+            features.Add(currentFeature);
 		}
 	}
 }

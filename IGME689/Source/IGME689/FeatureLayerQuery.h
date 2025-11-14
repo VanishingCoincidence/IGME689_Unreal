@@ -24,8 +24,16 @@ struct FProperties
 
 public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
-	TArray<FString> Properties;
+	FString Name;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int Altitude;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	FString Location;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly)
+	int Length;
 	TArray<FGeometries> Geometries;
+	//TArray<FString> Properties;
+	
 };
 
 
