@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject personPrefab;
     
     public Camera camera;
-    public PlaceManager placeManager;
+    //public PlaceManager placeManager;
 
     public Canvas placeCanvas;
     public TMP_Text placeInfo;
@@ -64,11 +64,8 @@ public class GameManager : MonoBehaviour
         legendButton.onClick.AddListener(ToggleLegend);
         proceedButton.onClick.AddListener(Proceed);
         
-        moveDropdown.onValueChanged.AddListener(Move);
-        cureButton.onClick.AddListener(Cure);
         researchButton.onClick.AddListener(Research);
         gainToolsButton.onClick.AddListener(GainTools);
-        recruitButton.onClick.AddListener(Recruit);
         
         StartCoroutine(DelayedAction());
     }
@@ -77,7 +74,7 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.3f); 
 
-        UpdateTotalCases();
+        //UpdateTotalCases();
     }
     
     // Update is called once per frame
@@ -107,7 +104,6 @@ public class GameManager : MonoBehaviour
                 else if (isHit && hit.collider.gameObject.GetComponent<Person>() != null)
                 {
                     personCanvas.enabled = true;
-                    FixPersonInfo(hit.collider.gameObject.GetComponent<Person>());
                 }
                 else
                 {
@@ -117,41 +113,6 @@ public class GameManager : MonoBehaviour
             }
 
         }
-    }
-
-
-    void Move(int index)
-    {
-        string selectedCounty = moveDropdown.options[index].text;
-        int placetoGoIndex = 0;
-        int personToMoveIndex = 0;
-
-        for (int i = 0; i < placeManager.places.Count; i++)
-        {
-            if (placeManager.places[i].placeData.County == selectedCounty)
-            {
-                placetoGoIndex = i;
-
-                for (int j = 0; j < placeManager.people.Count; j++)
-                {
-                    if (placeManager.people[j].currentCounty.placeData.County == currentPlace.placeData.County)
-                    {
-                        personToMoveIndex = j;
-                        //Debug.Log(placeManager.people[j].currentCounty.placeData.County);
-                        break;
-                    }
-                }
-
-                break;
-            }
-        }
-        
-        placeManager.people[personToMoveIndex].Move(placeManager.places[placetoGoIndex].placeData.Longitude, placeManager.places[placetoGoIndex].placeData.Latitude);
-        placeManager.people[personToMoveIndex].currentCounty = placeManager.places[placetoGoIndex];
-        
-        currentPlayerPoints--;
-        UpdatePoints();
-        personCanvas.enabled = false;
     }
 
     void GainTools()
@@ -172,83 +133,6 @@ public class GameManager : MonoBehaviour
             personCanvas.enabled = false;
             currentPlayerPoints -= 3;
             UpdatePoints();
-        }
-    }
-    
-    void Recruit()
-    {
-        if (currentPlayerPoints >= 4)
-        {
-            string seed = Time.time.ToString();
-            System.Random rng = new System.Random(seed.GetHashCode());
-
-            if (rng.Next(0, 100) <= currentPlace.placeData.ChanceToRecruit)
-            {
-                placeManager.SpawnPerson(currentPlace.placeData.County);
-            }
-            
-            personCanvas.enabled = false;
-            currentPlayerPoints -= 4;
-            UpdatePoints();
-        }
-    }
-
-    void Cure()
-    {
-        foreach (Place place in placeManager.places)
-        {
-            if (place.placeData.County == currentPlace.placeData.County)
-            {
-                if (place.placeData.CurrentCases > 0 && place.placeData.CurrentCases >= cureMod)
-                {
-                    if (place.placeData.CurrentCases >= cureMod)
-                    {
-                        place.placeData.CurrentCases -= cureMod;
-                    }
-                    else
-                    {
-                        place.placeData.CurrentCases = 0;
-                    }
-                    
-                    place.UpdateColor();
-                    currentPlayerPoints--;
-                    UpdatePoints();
-                    UpdateTotalCases();
-                    personCanvas.enabled = false;
-                    placeCanvas.enabled = false;
-                    break;
-                }
-
-            }
-        }
-    }
-    
-    void FixPersonInfo(Person person)
-    {
-        moveDropdown.ClearOptions();
-        
-        foreach (Person p in placeManager.people)
-        {
-            if (p.currentCounty == person.currentCounty)
-            {
-                personPlaceInfo.text = "Current location: " + p.currentCounty.placeData.County + ", " + p.currentCounty.placeData.State;
-                personCurrentCaseInfo.text = "Cases: " + p.currentCounty.placeData.CurrentCases;
-
-                string placesCanTravel = "Places can travel: ";
-
-                foreach (PlaceData place in person.currentCounty.placeData.Connected_Places)
-                {
-                    placesCanTravel += " " + place.County + ", " + place.State + " |";
-                    moveDropdown.options.Add(new TMP_Dropdown.OptionData(place.County));
-                }
-                
-                personCanTravelInfo.text = placesCanTravel;
-                
-                currentPlace = person.currentCounty;
-                Debug.Log(currentPlace.placeData.County);
-                    
-                break;
-            }
         }
     }
 
@@ -281,67 +165,28 @@ public class GameManager : MonoBehaviour
         placeCanvas.enabled = false;
         personCanvas.enabled = false;
         UpdatePoints();
-        Spread();
     }
 
-    void Spread()
-    {
-        string seed = Time.time.ToString();
-        System.Random rng = new System.Random(seed.GetHashCode());
-
-        foreach (Place p in placeManager.places)
-        {
-            if (rng.Next(0, 100) <= p.placeData.ChanceToGain)
-            {
-                p.placeData.CurrentCases++;
-                p.UpdateColor();
-            }
-
-            if (p.placeData.CurrentCases > 5)
-            {
-                foreach (PlaceData place in p.placeData.Connected_Places)
-                {
-                    place.CurrentCases++;
-                    p.UpdateColor();
-                }
-            }
-        }
-        
-        UpdateTotalCases();
-    }
 
     void FixPlaceInfo(Place place)
     {
-        foreach (Place p in placeManager.places)
-        {
-            if (p.placeData.County == place.placeData.County)
-            {
-                string placesCanTravel = "Places can travel: ";
-
-                foreach (PlaceData placeData in p.placeData.Connected_Places)
-                {
-                    placesCanTravel += " " + placeData.County + ", " + placeData.State + " |";
-                }
-                
-                connectedInfo.text = placesCanTravel;
-                placeInfo.text = p.placeData.County + ", " + p.placeData.State;
-                currentCaseInfo.text = "Cases: " + p.placeData.CurrentCases;
-                break;
-            }
-        }
-    }
-
-    void UpdateTotalCases()
-    {
-        int tempCases = 0;
-        
-        foreach (Place p in placeManager.places)
-        {
-            tempCases += p.placeData.CurrentCases;
-        }
-        
-        totalCases = tempCases;
-        totalCaseInfo.text = "Total Cases: " + totalCases;
+        //foreach (Place p in placeManager.places)
+        //{
+        //    if (p.placeData.County == place.placeData.County)
+        //    {
+        //        string placesCanTravel = "Places can travel: ";
+        //
+        //        foreach (PlaceData placeData in p.placeData.Connected_Places)
+        //        {
+        //            placesCanTravel += " " + placeData.County + ", " + placeData.State + " |";
+        //        }
+        //        
+        //        connectedInfo.text = placesCanTravel;
+        //        placeInfo.text = p.placeData.County + ", " + p.placeData.State;
+        //        currentCaseInfo.text = "Cases: " + p.placeData.CurrentCases;
+        //        break;
+        //    }
+        //}
     }
 
     void UpdatePoints()

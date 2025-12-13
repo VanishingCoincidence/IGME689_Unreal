@@ -52,57 +52,14 @@ public class Place : MonoBehaviour
 
     private Color32 FindDefaultColor()
     {
-        if (placeData.CurrentCases == 0)
-        {
-            return color0Default;
-        }
-        else if (placeData.CurrentCases == 1)
-        {
-            return color1Default;
-        }
-        else if (placeData.CurrentCases == 2)
-        {
-            return color2Default;
-        }
-        else if (placeData.CurrentCases == 3)
-        {
-            return color3Default;
-        }
-        else if (placeData.CurrentCases == 4)
-        {
-            return color4Default;
-        }
-        else
-        {
-            return color5Default;
-        }
+
+        return color5Default;
     }
     
     private Color32 FindHoverColor()
     {
-        if (placeData.CurrentCases == 0)
-        {
-            return color0Hover;
-        }
-        else if (placeData.CurrentCases == 1)
-        {
-            return color1Hover;
-        }
-        else if (placeData.CurrentCases == 2)
-        {
-            return color2Hover;
-        }
-        else if (placeData.CurrentCases == 3)
-        {
-            return color3Hover;
-        }
-        else if (placeData.CurrentCases == 4)
-        {
-            return color4Hover;
-        }
-        else
-        {
-            return color5Hover;
-        }
+
+        
+        return color5Default;
     }
 }

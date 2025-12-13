@@ -13,21 +13,22 @@ public class PlaceManager : MonoBehaviour
 {
     public ArcGISMapComponent arcgisMap;
     public GameObject placePrefab;
-    public GameObject linePrefab;
+    //public GameObject linePrefab;
     
     private DataLoader dataLoader;
     public List<Place> places;
+    public List<River> rivers;
     public Transform spawnPosition;
     
-    public List<Person> people = new List<Person>();
-    public GameObject personPrefab;
+    //public List<Person> people = new List<Person>();
+    //public GameObject personPrefab;
 
     void Awake()
     {
         arcgisMap = FindFirstObjectByType<ArcGISMapComponent>();
         places = new List<Place>();
         dataLoader = new DataLoader();
-        StartCoroutine(dataLoader.GetFeatures());
+        StartCoroutine(dataLoader.GetCityFeatures());
     }
 
     void Start()
@@ -41,7 +42,7 @@ public class PlaceManager : MonoBehaviour
         yield return new WaitForSeconds(1f); 
 
         SpawnPlaces();
-        SpawnConnections();
+        //SpawnConnections();
         InitialPersonSpawn();
     }
 
@@ -57,19 +58,7 @@ public class PlaceManager : MonoBehaviour
     
     public void SpawnPerson(string county)
     {
-        foreach (Place p in places)
-        {
-            if (p.placeData.County == county)
-            {
-                Person person = Instantiate(personPrefab, spawnPosition).GetComponent<Person>();
-                person.currentCounty = p;
-                person.latitude = p.placeData.Latitude;
-                person.longitude = p.placeData.Longitude;
-                people.Add(person);
-                break;
-            }
-
-        }
+        
     }
     
     void InitialPersonSpawn()
@@ -81,26 +70,26 @@ public class PlaceManager : MonoBehaviour
     
     private void SpawnConnections()
     {
-        // go through each county
-        foreach (var county in dataLoader.placeDataList)
-        {
-            // go through each county that the county being looked at is connected to
-            foreach (var connection in county.Connected_Places)
-            {
-                LineRenderer connectionPath = Instantiate(linePrefab, spawnPosition).GetComponent<LineRenderer>();
-                
-                var arcPosition = new ArcGISPoint(county.Longitude, county.Latitude, 90, ArcGISSpatialReference.WGS84());
-                var position = arcgisMap.GeographicToEngine(arcPosition);
-                var arcPosition2 = new ArcGISPoint(connection.Longitude, connection.Latitude, 90, ArcGISSpatialReference.WGS84());
-                var position2 = arcgisMap.GeographicToEngine(arcPosition2);
-                
-                // draw a line between the two counties
-                connectionPath.positionCount = 2;
-                connectionPath.SetPosition(0, position);
-                connectionPath.SetPosition(1, position2);
-                //Debug.Log(position + " " + position2);
-            }
-        }
+        //// go through each county
+        //foreach (var county in dataLoader.placeDataList)
+        //{
+        //    // go through each county that the county being looked at is connected to
+        //    foreach (var connection in county.Connected_Places)
+        //    {
+        //        LineRenderer connectionPath = Instantiate(linePrefab, spawnPosition).GetComponent<LineRenderer>();
+        //        
+        //        var arcPosition = new ArcGISPoint(county.Longitude, county.Latitude, 90, ArcGISSpatialReference.WGS84());
+        //        var position = arcgisMap.GeographicToEngine(arcPosition);
+        //        var arcPosition2 = new ArcGISPoint(connection.Longitude, connection.Latitude, 90, ArcGISSpatialReference.WGS84());
+        //        var position2 = arcgisMap.GeographicToEngine(arcPosition2);
+        //        
+        //        // draw a line between the two counties
+        //        connectionPath.positionCount = 2;
+        //        connectionPath.SetPosition(0, position);
+        //        connectionPath.SetPosition(1, position2);
+        //        //Debug.Log(position + " " + position2);
+        //    }
+        //}
     }
     
 }

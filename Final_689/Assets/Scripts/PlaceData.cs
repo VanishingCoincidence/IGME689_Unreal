@@ -5,30 +5,28 @@ using UnityEngine;
 
 public class PlaceData
 {
-    public string State;
-    public string County;
+    public string Name;
     public double Longitude;
     public double Latitude;
-    public int StartingCases;
-    public int CurrentCases;
-    public float ChanceToGain;
-    public float ChanceToRecruit;
-    public List<PlaceData> Connected_Places;
+    public int Population;
+    public double PopPerMile;
+    public List<PlaceData> Connected_Road_Places;
+    public List<PlaceData> Connected_River_Places;
     
-    public PlaceData(string state, string county, double longitude, double latitude, float confirmed, float deaths, float incidentRate)
+    public PlaceData(string name, double longitude, double latitude, int population, double popPerMile)
     {
         
-        State = state;
-        County = county;
+        Name = name;
         Longitude = longitude;
         Latitude = latitude;
         
-        StartingCases = SetStarting(confirmed);
-        CurrentCases = StartingCases;
-        ChanceToGain = SetGainMore(incidentRate);
-        ChanceToRecruit = SetSucceedRecruit(deaths);
+        //StartingCases = SetStarting(confirmed);
+        //CurrentCases = StartingCases;
+        //ChanceToGain = SetGainMore(incidentRate);
+        //ChanceToRecruit = SetSucceedRecruit(deaths);
         
-        Connected_Places = new List<PlaceData>();
+        Connected_Road_Places = new List<PlaceData>();
+        Connected_River_Places = new List<PlaceData>();
     }
     
     public void ConnectPlaces(PlaceData b)
@@ -44,18 +42,18 @@ public class PlaceData
         distance = Math.Abs(distance);
         
         // also makes sure each place doesn't have a crazy amount of connections
-        if (distance < 10 && Connected_Places.Count < 4 && b.Connected_Places.Count < 4)
-        {
-            this.Connected_Places.Add(b);
-            b.Connected_Places.Add(this);
-            //
-            //Debug.Log(County + " and " + b.County + " connected");
-        }
+        //if (distance < 10 && Connected_Places.Count < 4 && b.Connected_Places.Count < 4)
+        //{
+        //    this.Connected_Places.Add(b);
+        //    b.Connected_Places.Add(this);
+        //    //
+        //    //Debug.Log(County + " and " + b.County + " connected");
+        //}
     }
 
     public bool IsConnected(PlaceData otherPlace)
     {
-        return Connected_Places.Contains(otherPlace);
+        return false;
     }
 
     public int SetStarting(float confirmed)
