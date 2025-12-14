@@ -8,14 +8,16 @@ using System.Collections;
 public class River
 {
     public string Name;
-    public List<List<double[]>> Coordinates;
+    public List<List<double[]>> CoordinatesList;
+    //public List<double[]> Coordinates;
+    //public bool isLineString = true;
     
-    public River(string name, List<List<double[]>> coordinates)
+    public River(string name, List<List<double[]>> coordinatesList)
     {
         
         Name = name;
         //Longitude = longitude;
         //Latitude = latitude;
-        Coordinates = coordinates;
+        CoordinatesList = coordinatesList;
     }
 }

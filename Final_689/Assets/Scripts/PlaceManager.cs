@@ -32,7 +32,7 @@ public class PlaceManager : MonoBehaviour
         rivers = new List<River>();
         dataLoader = new DataLoader();
         StartCoroutine(dataLoader.GetCityFeatures());
-        //StartCoroutine(dataLoader.GetRiverFeatures());
+        StartCoroutine(dataLoader.GetRiverFeatures());
         StartCoroutine(dataLoader.GetRoadFeatures());
     }
 
@@ -48,7 +48,7 @@ public class PlaceManager : MonoBehaviour
 
         SpawnPlaces();
         SpawnRoads();
-        //SpawnRivers();
+        SpawnRivers();
         //SpawnConnections();
     }
 
@@ -73,10 +73,10 @@ public class PlaceManager : MonoBehaviour
         {
             rivers.Add(river);
             
-            foreach (var riverList in river.Coordinates)
+            foreach (var riverList in river.CoordinatesList)
             {
-                LineRenderer connectionPath = Instantiate(roadPrefab, spawnPosition).GetComponent<LineRenderer>();
-                connectionPath.positionCount = river.Coordinates.Count;
+                LineRenderer connectionPath = Instantiate(riverPrefab, spawnPosition).GetComponent<LineRenderer>();
+                connectionPath.positionCount = riverList.Count;
                 connectionPath.material.SetColor("_Color", Color.blue);
                 
                 int count = 0;
@@ -99,7 +99,7 @@ public class PlaceManager : MonoBehaviour
     {
         foreach (var road in dataLoader.roadList)
         {
-            Debug.Log(road.Name);
+            //Debug.Log(road.Name);
             
             LineRenderer connectionPath = Instantiate(roadPrefab, spawnPosition).GetComponent<LineRenderer>();
             connectionPath.positionCount = road.Coordinates.Count;
@@ -134,8 +134,7 @@ public class PlaceManager : MonoBehaviour
             //    connectionPath.SetPosition(1, position2);
             //    //Debug.Log(position + " " + position2);
             //}
-            
-            
+
             
         }
     }

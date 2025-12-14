@@ -155,8 +155,6 @@ public class DataLoader
     
      public void LoadRiverData(string response)
     {
-        //UnityWebRequest request = UnityWebRequest.Get(url);
-
         JObject jObject = JObject.Parse(response);
         JToken[] jFeatures = jObject.SelectToken("features").ToArray();
 
@@ -165,6 +163,7 @@ public class DataLoader
             // Get coordinates in the Feature Service
             var coordinates = feature.SelectToken("geometry").SelectToken("coordinates").ToArray();
             var properties = feature.SelectToken("properties").ToArray();
+            var type = feature.SelectToken("geometry").SelectToken("type").ToString();
 
             string name = null;
             List<List<double[]>> coordinatesListList = new List<List<double[]>>();
@@ -178,55 +177,155 @@ public class DataLoader
                 {
                     // remove quotations
                     name = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                    Debug.Log(name);
                 }
             }
-            
-            foreach (var coordinateList in coordinates)
+
+            if (type.Equals("LineString"))
             {
+                Debug.Log("linestring success");
                 List<double[]> coordList = new List<double[]>();
                 
-                if (coordinateList.ToArray().Length >= 10)
+                if(coordinates.Length > 1000)
                 {
+                    int refNumber = coordinates.Length / 305;
                     int count = 0;
-                    foreach (var coord in coordinateList)
+                    foreach (var coord in coordinates)
                     {
-                        if (count % 10 == 0 || count == 0 || count == coordinateList.ToArray().Length - 1)
+                        if (count % refNumber == 0 || count == 0 || count == coordinates.Length - 1)
                         {
-                            coordinateList.ToArray();
                             double[] coordToAdd = new double[2];
                             coordToAdd[0] = Convert.ToDouble(coord[0]);
                             coordToAdd[1] = Convert.ToDouble(coord[1]);
                             coordList.Add(coordToAdd);
-
-                            count++;
                         } 
-                        
+                        count++;
                     }
+                
+                    Debug.Log(count);
+                }
+                else if(coordinates.Length > 100)
+                {
+                    int refNumber = coordinates.Length / 105;
+                    int count = 0;
+                    foreach (var coord in coordinates)
+                    {
+                        if (count % refNumber == 0 || count == 0 || count == coordinates.Length - 1)
+                        {
+                            double[] coordToAdd = new double[2];
+                            coordToAdd[0] = Convert.ToDouble(coord[0]);
+                            coordToAdd[1] = Convert.ToDouble(coord[1]);
+                            coordList.Add(coordToAdd);
+                        } 
+                        count++;
+                    }
+                
+                    Debug.Log(count);
                 }
                 else
                 {
                     int count = 0;
-                    foreach (var coord in coordinateList)
+                    foreach (var coord in coordinates)
                     {
-                        if (count == 0 || count == coordinateList.ToArray().Length - 1)
+                        if (count % 20 == 0 || count == 0 || count == coordinates.Length - 1)
                         {
-                            Debug.Log(count);
-                            coordinateList.ToArray();
                             double[] coordToAdd = new double[2];
                             coordToAdd[0] = Convert.ToDouble(coord[0]);
                             coordToAdd[1] = Convert.ToDouble(coord[1]);
                             coordList.Add(coordToAdd);
-
-                            count++;
                         } 
-                        
+                        count++;
                     }
+                
+                    Debug.Log(count); 
                 }
+
                 
+
                 coordinatesListList.Add(coordList);
-                
             }
-            
+            else
+            {
+                foreach (var coordinateListToken in coordinates)
+                {
+                    var coordinateListArray = coordinateListToken.ToArray();
+                    List<double[]> coordList = new List<double[]>();
+                
+                    if(coordinateListArray.Length > 1000)
+                    {
+                        int refNumber = coordinateListArray.Length / 305;
+                        int count = 0;
+                        foreach (var coord in coordinateListArray)
+                        {
+                            if (count % refNumber == 0 || count == 0 || count == coordinateListArray.Length - 1)
+                            {
+                                double[] coordToAdd = new double[2];
+                                coordToAdd[0] = Convert.ToDouble(coord[0]);
+                                coordToAdd[1] = Convert.ToDouble(coord[1]);
+                                coordList.Add(coordToAdd);
+                            } 
+                            count++;
+                        }
+                
+                        Debug.Log(count);
+                    }
+                    else if (coordinateListArray.Length >= 100)
+                    {
+                        int refNumber = coordinateListArray.Length / 105;
+                        int count = 0;
+                        foreach (var coord in coordinateListArray)
+                        {
+                            if (count % refNumber == 0 || count == 0 || count == coordinateListArray.Length - 1)
+                            {
+                                double[] coordToAdd = new double[2];
+                                coordToAdd[0] = Convert.ToDouble(coord[0]);
+                                coordToAdd[1] = Convert.ToDouble(coord[1]);
+                                coordList.Add(coordToAdd);
+                            } 
+                            count++;
+                        }
+                        
+                        Debug.Log(count);
+                    }
+                    else if (coordinateListArray.Length >= 20)
+                    {
+                        int refNumber = coordinateListArray.Length / 10;
+                        int count = 0;
+                        foreach (var coord in coordinateListArray)
+                        {
+                            if (count % refNumber == 0 || count == 0 || count == coordinateListArray.Length - 1)
+                            {
+                                double[] coordToAdd = new double[2];
+                                coordToAdd[0] = Convert.ToDouble(coord[0]);
+                                coordToAdd[1] = Convert.ToDouble(coord[1]);
+                                coordList.Add(coordToAdd);
+                            } 
+                            count++;
+                        }
+                        
+                        Debug.Log(count);
+                    }
+                    else
+                    {
+                        int count = 0;
+                        foreach (var coord in coordinateListArray)
+                        {
+                            if (count == 0 || count == coordinateListArray.ToArray().Length - 1)
+                            {
+                                double[] coordToAdd = new double[2];
+                                coordToAdd[0] = Convert.ToDouble(coord[0]);
+                                coordToAdd[1] = Convert.ToDouble(coord[1]);
+                                coordList.Add(coordToAdd);
+                            } 
+                            count++;
+                        }
+                        
+                        Debug.Log(count);
+                    }
+                    coordinatesListList.Add(coordList);
+                
+                }
+            }
 
             if (name != null)
             {
@@ -239,8 +338,6 @@ public class DataLoader
      
       public void LoadRoadData(string response)
     {
-        //UnityWebRequest request = UnityWebRequest.Get(url);
-
         JObject jObject = JObject.Parse(response);
         JToken[] jFeatures = jObject.SelectToken("features").ToArray();
 
@@ -273,12 +370,9 @@ public class DataLoader
                 {
                     if (count % 10 == 0 || count == 0 || count == coordinates.Length - 1)
                     {
-                        coordinates.ToArray();
-                        //Debug.Log(coordinate[0] + ", " + coordinate[1] );
                         double[] coordToAdd = new double[2];
                         coordToAdd[0] = Convert.ToDouble(coordinate[0]);
                         coordToAdd[1] = Convert.ToDouble(coordinate[1]);
-                        //Debug.Log(coordToAdd[0]+ ", " + coordToAdd[1]);
                         coordinatesList.Add(coordToAdd);
                     }
 
@@ -289,12 +383,9 @@ public class DataLoader
             {
                 foreach (var coordinate in coordinates)
                 {
-                     coordinates.ToArray();
-                     //Debug.Log(coordinate[0] + ", " + coordinate[1] );
                      double[] coordToAdd = new double[2];
                      coordToAdd[0] = Convert.ToDouble(coordinate[0]);
                      coordToAdd[1] = Convert.ToDouble(coordinate[1]);
-                     //Debug.Log(coordToAdd[0]+ ", " + coordToAdd[1]);
                      coordinatesList.Add(coordToAdd);
                 }
             }
