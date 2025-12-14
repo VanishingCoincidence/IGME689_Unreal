@@ -12,15 +12,18 @@ using UnityEngine.Rendering;
 
 public class PlaceManager : MonoBehaviour
 {
+    [Header("ArcGIS")]
     public ArcGISMapComponent arcgisMap;
+    public Transform spawnPosition;
+    
+    [Header("Prefabs")]
     public GameObject placePrefab;
     public GameObject riverPrefab;
     public GameObject roadPrefab;
     
+    [Header("Data")]
     private DataLoader dataLoader;
     public List<Place> places;
-    public List<River> rivers;
-    public Transform spawnPosition;
     
     //public List<Person> people = new List<Person>();
     //public GameObject personPrefab;
@@ -29,7 +32,6 @@ public class PlaceManager : MonoBehaviour
     {
         arcgisMap = FindFirstObjectByType<ArcGISMapComponent>();
         places = new List<Place>();
-        rivers = new List<River>();
         dataLoader = new DataLoader();
         StartCoroutine(dataLoader.GetCityFeatures());
         StartCoroutine(dataLoader.GetRiverFeatures());
@@ -44,7 +46,7 @@ public class PlaceManager : MonoBehaviour
     
     public IEnumerator DelayedAction()
     {
-        yield return new WaitForSeconds(5f); 
+        yield return new WaitForSeconds(3f); 
 
         SpawnPlaces();
         SpawnRoads();
@@ -64,8 +66,6 @@ public class PlaceManager : MonoBehaviour
     {
         foreach (var river in dataLoader.riverList)
         {
-            rivers.Add(river);
-            
             foreach (var riverList in river.CoordinatesList)
             {
                 LineRenderer connectionPath = Instantiate(riverPrefab, spawnPosition).GetComponent<LineRenderer>();
@@ -86,7 +86,6 @@ public class PlaceManager : MonoBehaviour
             
         }
     }
-    
     private void SpawnRoads()
     {
         foreach (var road in dataLoader.roadList)

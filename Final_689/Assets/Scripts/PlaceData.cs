@@ -14,6 +14,10 @@ public class PlaceData
     public string River;
     public List<PlaceData> Connected_Road_Places;
     public List<PlaceData> Connected_Water_Places;
+
+    public int Money = 10;
+    public string HomeResource;
+    public bool IsPLayer = false;
     
     public PlaceData(string name, double longitude, double latitude, int population, double popPerMile, string ocean, string river)
     {
@@ -61,9 +65,14 @@ public class PlaceData
         
     }
 
-    public bool IsConnected(PlaceData otherPlace)
+    public bool IsConnectedWater(PlaceData otherPlace)
     {
-        return false;
+        return this.Connected_Water_Places.Contains(otherPlace);
+    }
+
+    public bool IsConnectedRoad(PlaceData otherPlace)
+    {
+        return this.Connected_Road_Places.Contains(otherPlace);
     }
     
     
