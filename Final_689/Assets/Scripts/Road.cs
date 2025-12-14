@@ -5,12 +5,12 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 
-public class River
+public class Road
 {
     public string Name;
-    public List<List<double[]>> Coordinates;
+    public List<double[]> Coordinates;
     
-    public River(string name, List<List<double[]>> coordinates)
+    public Road(string name, List<double[]> coordinates)
     {
         
         Name = name;

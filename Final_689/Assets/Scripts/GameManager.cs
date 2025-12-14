@@ -18,7 +18,7 @@ public class GameManager : MonoBehaviour
     public GameObject personPrefab;
     
     public Camera camera;
-    //public PlaceManager placeManager;
+    public PlaceManager placeManager;
 
     public Canvas placeCanvas;
     public TMP_Text placeInfo;
@@ -53,21 +53,16 @@ public class GameManager : MonoBehaviour
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        placeCanvas.enabled = false;
-        loseImage.enabled = false;
-        winImage.enabled = false;
-        legendCanvas.enabled = false;
-        personCanvas.enabled = false;
-        tutorialCanvas.enabled = true;
+        //placeCanvas.enabled = false;
+        //loseImage.enabled = false;
+        //winImage.enabled = false;
+        //legendCanvas.enabled = false;
+        //personCanvas.enabled = false;
+        //tutorialCanvas.enabled = true;
         
-        endTurnButton.onClick.AddListener(EndTurn);
-        legendButton.onClick.AddListener(ToggleLegend);
-        proceedButton.onClick.AddListener(Proceed);
+        //proceedButton.onClick.AddListener(Proceed);
         
-        researchButton.onClick.AddListener(Research);
-        gainToolsButton.onClick.AddListener(GainTools);
-        
-        StartCoroutine(DelayedAction());
+        //StartCoroutine(DelayedAction());
     }
     
     public IEnumerator DelayedAction()
@@ -82,7 +77,7 @@ public class GameManager : MonoBehaviour
     {
         if (currentPlayerPoints <= 0)
         {
-            EndTurn();
+            //EndTurn();
         }
         
         if (Input.GetMouseButtonDown(0))
@@ -98,73 +93,21 @@ public class GameManager : MonoBehaviour
             {
                 if (isHit && hit.collider.gameObject.GetComponent<Place>() != null)
                 {
-                    placeCanvas.enabled = true;
+                    //placeCanvas.enabled = true;
                     FixPlaceInfo(hit.collider.gameObject.GetComponent<Place>());
                 }
                 else if (isHit && hit.collider.gameObject.GetComponent<Person>() != null)
                 {
-                    personCanvas.enabled = true;
+                    //personCanvas.enabled = true;
                 }
                 else
                 {
-                    placeCanvas.enabled = false;
-                    personCanvas.enabled = false;
+                    //placeCanvas.enabled = false;
+                    //personCanvas.enabled = false;
                 }
             }
 
         }
-    }
-
-    void GainTools()
-    {
-        if (currentPlayerPoints >= 5)
-        {
-            personCanvas.enabled = false;
-            currentPlayerPoints -= 5;
-            totalPlayerPoints++;
-            UpdatePoints();
-        }
-    }
-    void Research()
-    {
-        if (currentPlayerPoints >= 3)
-        {
-            cureMod++;
-            personCanvas.enabled = false;
-            currentPlayerPoints -= 3;
-            UpdatePoints();
-        }
-    }
-
-    void ToggleLegend()
-    {
-        if (legendCanvas.enabled)
-        {
-            legendCanvas.enabled = false;
-        }
-        else
-        {
-            legendCanvas.enabled = true;
-        }
-    }
-
-    void EndTurn()
-    {
-        currentPlayerPoints = totalPlayerPoints;
-
-        if (totalCases >= maxCases)
-        {
-            loseImage.enabled = true;
-        }
-
-        if (totalCases <= 0)
-        {
-            winImage.enabled = true;
-        }
-        
-        placeCanvas.enabled = false;
-        personCanvas.enabled = false;
-        UpdatePoints();
     }
 
 

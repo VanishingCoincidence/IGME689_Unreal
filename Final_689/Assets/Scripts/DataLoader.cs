@@ -16,6 +16,7 @@ public class DataLoader
 {
     public List<PlaceData> placeDataList;
     public List<River> riverList;
+    public List<Road> roadList;
 
     public string urlRiver =
         "https://services.arcgis.com/ue9rwulIoeLEI9bj/arcgis/rest/services/US_Major_Rivers/FeatureServer/0/query?f=geojson&where=1=1&outfields=*";
@@ -29,6 +30,8 @@ public class DataLoader
     public DataLoader()
     {
         placeDataList = new List<PlaceData>();
+        riverList = new List<River>();
+        roadList = new List<Road>();
     }
     
     public IEnumerator GetCityFeatures()
@@ -164,7 +167,7 @@ public class DataLoader
             var properties = feature.SelectToken("properties").ToArray();
 
             string name = null;
-            List<double[]> coordinatesList = new List<double[]>();
+            List<List<double[]>> coordinatesListList = new List<List<double[]>>();
 
             foreach (var value in properties)
             {
@@ -178,18 +181,56 @@ public class DataLoader
                 }
             }
             
-            foreach (var coordinate in coordinates)
+            foreach (var coordinateList in coordinates)
             {
-                double[] coordToAdd = new double[2];
-                coordToAdd[0] = Convert.ToDouble(coordinate[0]);
-                coordToAdd[1] = Convert.ToDouble(coordinate[1]);
-                coordinatesList.Add(coordToAdd);
+                List<double[]> coordList = new List<double[]>();
+                
+                if (coordinateList.ToArray().Length >= 10)
+                {
+                    int count = 0;
+                    foreach (var coord in coordinateList)
+                    {
+                        if (count % 10 == 0 || count == 0 || count == coordinateList.ToArray().Length - 1)
+                        {
+                            coordinateList.ToArray();
+                            double[] coordToAdd = new double[2];
+                            coordToAdd[0] = Convert.ToDouble(coord[0]);
+                            coordToAdd[1] = Convert.ToDouble(coord[1]);
+                            coordList.Add(coordToAdd);
+
+                            count++;
+                        } 
+                        
+                    }
+                }
+                else
+                {
+                    int count = 0;
+                    foreach (var coord in coordinateList)
+                    {
+                        if (count == 0 || count == coordinateList.ToArray().Length - 1)
+                        {
+                            Debug.Log(count);
+                            coordinateList.ToArray();
+                            double[] coordToAdd = new double[2];
+                            coordToAdd[0] = Convert.ToDouble(coord[0]);
+                            coordToAdd[1] = Convert.ToDouble(coord[1]);
+                            coordList.Add(coordToAdd);
+
+                            count++;
+                        } 
+                        
+                    }
+                }
+                
+                coordinatesListList.Add(coordList);
+                
             }
             
 
             if (name != null)
             {
-                riverList.Add(new River(name, coordinatesList));
+                riverList.Add(new River(name, coordinatesListList));
             }
             
         }
@@ -209,54 +250,64 @@ public class DataLoader
             var coordinates = feature.SelectToken("geometry").SelectToken("coordinates").ToArray();
             var properties = feature.SelectToken("properties").ToArray();
 
-            string state = null;
-            string county = null;
-            float confirmed = 0f;
-            float deaths = 0f;
-            float incidentRate = 0f;
+            string name = null;
+            List<double[]> coordinatesList = new List<double[]>();
+            
 
             foreach (var value in properties)
             {
                 var key = value.ToString();
-                //Debug.Log(key);
                 var props = key.Split(':');
 
-                if (props[0] == "\"Province_State\"")
+                if (props[0] == "\"FULLNAME\"")
                 {
-                    // remove quotations
-                    state = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                    name = new string (props[1].ToArray());
                 }
-                if (props[0] == "\"Admin2\"")
-                {
-                    // remove quotations
-                    county = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
-                }
-                if (props[0] == "\"Confirmed\"")
-                {
-                    confirmed = float.Parse(props[1]);  
-                }
-                if (props[0] == "\"Deaths\"")
-                {
-                    deaths = float.Parse(props[1]);  
-                }
-                if (props[0] == "\"Incident_Rate\"")
-                {
-                    incidentRate = float.Parse(props[1]);  
-                }
-
             }
 
-            //coordinate.ToArray();
-            //Debug.Log("coordinate: " + coordinates[1] + " " + coordinates[0]);
-            //double x = Convert.ToDouble(coordinates[1]);
-            //double y = Convert.ToDouble(coordinates[0]);
-            //
-            //if (state != null)
-            //{
-            //    placeDataList.Add(new PlaceData(state, county, y,x,confirmed, deaths, incidentRate));
-            //}
+            if (coordinates.Length >= 10)
+            {
+                int count = 0;
+            
+                foreach (var coordinate in coordinates)
+                {
+                    if (count % 10 == 0 || count == 0 || count == coordinates.Length - 1)
+                    {
+                        coordinates.ToArray();
+                        //Debug.Log(coordinate[0] + ", " + coordinate[1] );
+                        double[] coordToAdd = new double[2];
+                        coordToAdd[0] = Convert.ToDouble(coordinate[0]);
+                        coordToAdd[1] = Convert.ToDouble(coordinate[1]);
+                        //Debug.Log(coordToAdd[0]+ ", " + coordToAdd[1]);
+                        coordinatesList.Add(coordToAdd);
+                    }
+
+                    count++;
+                }
+            }
+            else
+            {
+                foreach (var coordinate in coordinates)
+                {
+                     coordinates.ToArray();
+                     //Debug.Log(coordinate[0] + ", " + coordinate[1] );
+                     double[] coordToAdd = new double[2];
+                     coordToAdd[0] = Convert.ToDouble(coordinate[0]);
+                     coordToAdd[1] = Convert.ToDouble(coordinate[1]);
+                     //Debug.Log(coordToAdd[0]+ ", " + coordToAdd[1]);
+                     coordinatesList.Add(coordToAdd);
+                }
+            }
+            
+            
+
+            if (name != null)
+            {
+                roadList.Add(new Road(name, coordinatesList));
+            }
             
         }
+        
         
     }
     
