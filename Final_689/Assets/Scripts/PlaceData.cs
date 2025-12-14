@@ -10,23 +10,24 @@ public class PlaceData
     public double Latitude;
     public int Population;
     public double PopPerMile;
+    public string Ocean;
+    public string River;
     public List<PlaceData> Connected_Road_Places;
-    public List<PlaceData> Connected_River_Places;
+    public List<PlaceData> Connected_Water_Places;
     
-    public PlaceData(string name, double longitude, double latitude, int population, double popPerMile)
+    public PlaceData(string name, double longitude, double latitude, int population, double popPerMile, string ocean, string river)
     {
         
         Name = name;
         Longitude = longitude;
         Latitude = latitude;
-        
-        //StartingCases = SetStarting(confirmed);
-        //CurrentCases = StartingCases;
-        //ChanceToGain = SetGainMore(incidentRate);
-        //ChanceToRecruit = SetSucceedRecruit(deaths);
+        Population = population;
+        PopPerMile = popPerMile;
+        Ocean = ocean;
+        River = river;
         
         Connected_Road_Places = new List<PlaceData>();
-        Connected_River_Places = new List<PlaceData>();
+        Connected_Water_Places = new List<PlaceData>();
     }
     
     public void ConnectPlaces(PlaceData b)
@@ -41,82 +42,29 @@ public class PlaceData
         double distance = Math.Sqrt(x + y);
         distance = Math.Abs(distance);
         
-        // also makes sure each place doesn't have a crazy amount of connections
-        //if (distance < 10 && Connected_Places.Count < 4 && b.Connected_Places.Count < 4)
-        //{
-        //    this.Connected_Places.Add(b);
-        //    b.Connected_Places.Add(this);
-        //    //
-        //    //Debug.Log(County + " and " + b.County + " connected");
-        //}
+        
+        if (!this.River.Equals(" n") && this.River.Equals(b.River))
+        {
+            this.Connected_Water_Places.Add(b);
+            b.Connected_Water_Places.Add(this);
+        }
+        else if (!this.Ocean.Equals(" n") && this.Ocean.Equals(b.Ocean))
+        {
+            this.Connected_Water_Places.Add(b);
+            b.Connected_Water_Places.Add(this);
+        }
+        else
+        {
+            this.Connected_Road_Places.Add(b);
+            b.Connected_Road_Places.Add(this);
+        }
+        
     }
 
     public bool IsConnected(PlaceData otherPlace)
     {
         return false;
     }
-
-    public int SetStarting(float confirmed)
-    {
-        // starting amount depends on the confirmed number of COVID cases
-        if (confirmed < 300000)
-        {
-            return 0;
-        }
-        else if (confirmed < 500000)
-        {
-            return 1;
-        }
-        else if (confirmed < 1000000)
-        {
-            return 2;
-        }
-        else
-        {
-            return 3;
-        }
-    }
     
-    public float SetGainMore(float incidentRate)
-    {
-        // the higher the incident rate, the more likely it is to gain more cases naturally
-        if (incidentRate < 25000)
-        {
-            return 10;
-        }
-        else if (incidentRate < 35000)
-        {
-            return 15;
-        }
-        else if (incidentRate < 38000)
-        {
-            return 30;
-        }
-        else
-        {
-            return 45;
-        }
-    }
-    
-    public float SetSucceedRecruit(float deaths)
-    {
-        // the more deaths there are, the less likely "Recruit" is to succeed
-        if (deaths < 1000)
-        {
-            return 90;
-        }
-        else if (deaths < 5000)
-        {
-            return 75;
-        }
-        else if (deaths < 10000)
-        {
-            return 50;
-        }
-        else
-        {
-            return 40;
-        }
-    }
     
 }

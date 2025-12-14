@@ -1637,26 +1637,26 @@ MonoBehaviour:
     MeshModifications:
       IsEnabled: 0
       MeshModifications: []
-  enableExtent: 0
+  enableExtent: 1
   extent:
     GeographicCenter:
-      X: 0
-      Y: 0
+      X: -95.4
+      Y: 45
       Z: 0
       SRWkid: 4326
       SpatialReference:
         WKID: 4326
         VerticalWKID: 0
       version: 1
-    ExtentShape: 2
+    ExtentShape: 1
     ShapeDimensions:
-      x: 0
-      y: 0
+      x: 6700000
+      y: 5992102
     UseOriginAsCenter: 0
   layers: []
   originPosition:
-    X: -97.5
-    Y: 38
+    X: -78.8
+    Y: 34
     Z: 0
     SRWkid: 4326
     SpatialReference:
@@ -1692,9 +1692,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_LocalPosition:
-    x: -10853650.352344174
+    x: -8771975.874509957
     y: 0
-    z: 4579425.812870098
+    z: 4028802.0261344067
   m_LocalRotation:
     value:
       x: 0
@@ -1808,7 +1808,7 @@ Transform:
   m_GameObject: {fileID: 1823688464}
   serializedVersion: 2
   m_LocalRotation: {x: 0.70710677, y: -0, z: -0, w: 0.7071068}
-  m_LocalPosition: {x: 0, y: 3397706, z: 0}
+  m_LocalPosition: {x: -545465.5, y: 4542456, z: 13435.474}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1966,9 +1966,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   position:
-    X: -97.5
-    Y: 38
-    Z: 3397706
+    X: -83.7
+    Y: 34.1
+    Z: 4542456
     SRWkid: 4326
     SpatialReference:
       WKID: 4326
@@ -2015,9 +2015,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_IsInitialized: 1
   m_LocalPosition:
-    x: -10853650.352344174
-    y: 3397706
-    z: 4579425.812870098
+    x: -9317441.379397
+    y: 4542456
+    z: 4042237.499676166
   m_LocalRotation:
     value:
       x: 0.70710677

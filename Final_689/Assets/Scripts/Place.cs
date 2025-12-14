@@ -9,19 +9,6 @@ public class Place : MonoBehaviour
     public ArcGISLocationComponent arcgisLocation;
     
     private Renderer renderer;
-    private Color32 color0Default = new Color32(59, 59, 59, 255);
-    private Color32 color1Default = new Color32(255, 220, 209, 255);
-    private Color32 color2Default = new Color32(255, 168, 181, 255);
-    private Color32 color3Default = new Color32(233, 108, 162, 255);
-    private Color32 color4Default = new Color32(220, 89, 135, 255);
-    private Color32 color5Default = new Color32(179, 33, 52, 255);
-    
-    private Color32 color0Hover = new Color32(59, 59, 59, 100);
-    private Color32 color1Hover = new Color32(255, 220, 209, 100);
-    private Color32 color2Hover = new Color32(255, 168, 181, 100);
-    private Color32 color3Hover = new Color32(233, 108, 162, 100);
-    private Color32 color4Hover = new Color32(220, 89, 135, 100);
-    private Color32 color5Hover = new Color32(179, 33, 52, 100);
 
     void Awake()
     {
@@ -31,35 +18,17 @@ public class Place : MonoBehaviour
 
     void Start()
     {
-        arcgisLocation.Position = new ArcGISPoint(placeData.Longitude, placeData.Latitude, 0, ArcGISSpatialReference.WGS84());
-        renderer.material.color = FindDefaultColor();
+        arcgisLocation.Position = new ArcGISPoint(placeData.Longitude, placeData.Latitude, 100, ArcGISSpatialReference.WGS84());
+        renderer.material.color = new Color32(179, 33, 52, 255);
     }
 
     private void OnMouseEnter()
     {
-        renderer.material.color = FindHoverColor();
+        renderer.material.color = new Color32(220, 89, 135, 255);
     }
 
     private void OnMouseExit()
     {
-        renderer.material.color = FindDefaultColor();
-    }
-
-    public void UpdateColor()
-    {
-        renderer.material.color = FindDefaultColor();
-    }
-
-    private Color32 FindDefaultColor()
-    {
-
-        return color5Default;
-    }
-    
-    private Color32 FindHoverColor()
-    {
-
-        
-        return color5Default;
+        renderer.material.color = new Color32(179, 33, 52, 255);
     }
 }

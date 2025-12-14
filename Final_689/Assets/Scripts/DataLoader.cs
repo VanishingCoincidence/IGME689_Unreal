@@ -25,7 +25,7 @@ public class DataLoader
         "https://services7.arcgis.com/jF2q3LPxL7PETdYk/arcgis/rest/services/US_Primary_Roads/FeatureServer/0/query?f=geojson&where=1=1&outfields=*";
     
     public string urlCity =
-        "https://services2.arcgis.com/RQcpPaCpMAXzUI5g/arcgis/rest/services/USA_Major_Cities/FeatureServer/0/query?f=geojson&where=1=1&outfields=*";
+        "https://services2.arcgis.com/RQcpPaCpMAXzUI5g/arcgis/rest/services/USA_Major_Cities2/FeatureServer/0/query?f=geojson&where=1=1&outfields=*";
     
     public DataLoader()
     {
@@ -102,6 +102,8 @@ public class DataLoader
             var properties = feature.SelectToken("properties").ToArray();
 
             string name = null;
+            string ocean = null;
+            string river = null;
             int population = 0;
             double popPerMile = 0f;
 
@@ -124,6 +126,14 @@ public class DataLoader
                 {
                     popPerMile = float.Parse(props[1]);  
                 }
+                if (props[0] == "\"ocean\"")
+                {
+                    ocean = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                }
+                if (props[0] == "\"river\"")
+                {
+                    river = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
+                }
 
             }
 
@@ -134,22 +144,22 @@ public class DataLoader
 
             if (name != null)
             {
-                placeDataList.Add(new PlaceData(name,y, x, population, popPerMile));
+                placeDataList.Add(new PlaceData(name,y, x, population, popPerMile, ocean, river));
             }
             
         }
 
-        //foreach (var place1 in placeDataList)
-        //{
-        //    foreach (var place2 in placeDataList)
-        //    {
-        //        // don't connect with itself nor connect with something it's already connected to
-        //        if (place1.County != place2.County && !place1.Connected_Places.Contains(place2))
-        //        {
-        //            place1.ConnectPlaces(place2);
-        //        }
-        //    }
-        //}
+        foreach (var place1 in placeDataList)
+        {
+            foreach (var place2 in placeDataList)
+            {
+                // don't connect with itself nor connect with something it's already connected to
+                if (place1.Name!= place2.Name && !place1.Connected_Road_Places.Contains(place2) && !place1.Connected_Water_Places.Contains(place2))
+                {
+                    place1.ConnectPlaces(place2);
+                }
+            }
+        }
         
     }
     
@@ -177,13 +187,12 @@ public class DataLoader
                 {
                     // remove quotations
                     name = new string ((from c in props[1] where char.IsWhiteSpace(c) || char.IsLetter(c) select c).ToArray());
-                    Debug.Log(name);
                 }
             }
 
             if (type.Equals("LineString"))
             {
-                Debug.Log("linestring success");
+
                 List<double[]> coordList = new List<double[]>();
                 
                 if(coordinates.Length > 1000)
@@ -201,8 +210,7 @@ public class DataLoader
                         } 
                         count++;
                     }
-                
-                    Debug.Log(count);
+                    
                 }
                 else if(coordinates.Length > 100)
                 {
@@ -219,8 +227,7 @@ public class DataLoader
                         } 
                         count++;
                     }
-                
-                    Debug.Log(count);
+                    
                 }
                 else
                 {
@@ -236,8 +243,7 @@ public class DataLoader
                         } 
                         count++;
                     }
-                
-                    Debug.Log(count); 
+                    
                 }
 
                 
@@ -267,7 +273,7 @@ public class DataLoader
                             count++;
                         }
                 
-                        Debug.Log(count);
+
                     }
                     else if (coordinateListArray.Length >= 100)
                     {
@@ -285,7 +291,6 @@ public class DataLoader
                             count++;
                         }
                         
-                        Debug.Log(count);
                     }
                     else if (coordinateListArray.Length >= 20)
                     {
@@ -303,7 +308,6 @@ public class DataLoader
                             count++;
                         }
                         
-                        Debug.Log(count);
                     }
                     else
                     {
@@ -319,8 +323,6 @@ public class DataLoader
                             } 
                             count++;
                         }
-                        
-                        Debug.Log(count);
                     }
                     coordinatesListList.Add(coordList);
                 
