@@ -55,13 +55,17 @@ public class PlaceManager : MonoBehaviour
 
     private void SpawnPlaces()
     {
-        foreach (var county in dataLoader.placeDataList)
+        
+        foreach (var city in dataLoader.placeDataList)
         {
             Place place = Instantiate(placePrefab, spawnPosition).GetComponent<Place>();
-            place.placeData = county;
+            place.placeData = city;
+            
             places.Add(place);
         }
     }
+
+    
     private void SpawnRivers()
     {
         foreach (var river in dataLoader.riverList)
@@ -90,6 +94,7 @@ public class PlaceManager : MonoBehaviour
     {
         foreach (var road in dataLoader.roadList)
         {
+            //Debug.Log(road.Name);
             LineRenderer connectionPath = Instantiate(roadPrefab, spawnPosition).GetComponent<LineRenderer>();
             connectionPath.positionCount = road.Coordinates.Count;
             

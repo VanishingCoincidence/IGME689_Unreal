@@ -16,8 +16,8 @@ public class PlaceData
     public List<PlaceData> Connected_Water_Places;
 
     public int Money = 10;
-    public string HomeResource;
-    public bool IsPLayer = false;
+    public string HomeResource = null;
+    public bool IsPlayer = false;
     
     public PlaceData(string name, double longitude, double latitude, int population, double popPerMile, string ocean, string river)
     {
@@ -29,6 +29,8 @@ public class PlaceData
         PopPerMile = popPerMile;
         Ocean = ocean;
         River = river;
+
+        HomeResource = ChooseResource();
         
         Connected_Road_Places = new List<PlaceData>();
         Connected_Water_Places = new List<PlaceData>();
@@ -63,6 +65,35 @@ public class PlaceData
             b.Connected_Road_Places.Add(this);
         }
         
+    }
+
+    public string ChooseResource()
+    {
+        // the starting resource depends on the PopPerMile
+        string resource = null;
+
+        if (PopPerMile > 10000)
+        {
+            resource = "clay";
+        }
+        else if (PopPerMile > 5500)
+        {
+            resource = "iron";
+        }
+        else if (PopPerMile > 4000)
+        {
+            resource = "stone";
+        }
+        else if (PopPerMile > 2500)
+        {
+            resource = "wood";
+        }
+        else
+        {
+            resource = "wheat";
+        }
+
+        return resource;
     }
 
     public bool IsConnectedWater(PlaceData otherPlace)
