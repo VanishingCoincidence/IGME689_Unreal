@@ -21,7 +21,6 @@ public class PlaceData
     
     public PlaceData(string name, double longitude, double latitude, int population, double popPerMile, string ocean, string river)
     {
-        
         Name = name;
         Longitude = longitude;
         Latitude = latitude;

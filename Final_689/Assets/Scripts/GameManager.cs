@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
@@ -11,6 +12,7 @@ public class GameManager : MonoBehaviour
 {
     public Camera camera;
     public PlaceManager placeManager;
+    private Place placeToGo;
     
     [Header("PlayerData")]
     private int currentPlayerPoints = 6;
@@ -26,10 +28,13 @@ public class GameManager : MonoBehaviour
     private int availableBoats = 0;
     private int availableWagons = 0;
 
-    public Canvas placeCanvas;
-    public TMP_Text placeInfo;
-    public TMP_Text currentCaseInfo;
-    public TMP_Text connectedInfo;
+    [Header("Modifiers")] 
+    private int travelTimeMod = 0;
+    private int moneyPerTurn = 10;
+    private int moneyMod = 1;
+    private int transportCost = 10;
+    private int transportCostMod = 1;
+    private int evilMoneyMod = 0;
 
     [Header("InstructionsCanvas")]
     public Canvas tutorialCanvas;
@@ -58,13 +63,13 @@ public class GameManager : MonoBehaviour
     public Canvas cityInfoCanvas;
     public TMP_Text cityNameText;
     public TMP_Text cityMoneyText;
+    public TMP_Text resourceText;
+    public TMP_Text travelTimeText;
     public Button sendBoatBtn;
     public Button sendWagonBtn;
     
     public TMP_Text pointsInfo;
-    public TMP_Text totalCaseInfo;
     public Button endTurnButton;
-    private int cureMod = 1;
     private Place currentPlace = null;
 
     public Canvas legendCanvas;
@@ -93,6 +98,9 @@ public class GameManager : MonoBehaviour
         
         //player info
         playerInfoCanvas.enabled = false;
+        
+        // other city info
+        cityInfoCanvas.enabled = false;
         
         //StartCoroutine(DelayedAction());
     }
@@ -125,13 +133,12 @@ public class GameManager : MonoBehaviour
             {
                 if (isHit && hit.collider.gameObject.GetComponent<Place>() != null)
                 {
-                    //placeCanvas.enabled = true;
+                    cityInfoCanvas.enabled = true;
                     FixCityInfo(hit.collider.gameObject.GetComponent<Place>());
                 }
                 else
                 {
-                    //placeCanvas.enabled = false;
-                    //personCanvas.enabled = false;
+                    cityInfoCanvas.enabled = false;
                 }
             }
 
@@ -141,23 +148,146 @@ public class GameManager : MonoBehaviour
 
     void FixCityInfo(Place place)
     {
-        //foreach (Place p in placeManager.places)
-        //{
-        //    if (p.placeData.County == place.placeData.County)
-        //    {
-        //        string placesCanTravel = "Places can travel: ";
-        //
-        //        foreach (PlaceData placeData in p.placeData.Connected_Places)
-        //        {
-        //            placesCanTravel += " " + placeData.County + ", " + placeData.State + " |";
-        //        }
-        //        
-        //        connectedInfo.text = placesCanTravel;
-        //        placeInfo.text = p.placeData.County + ", " + p.placeData.State;
-        //        currentCaseInfo.text = "Cases: " + p.placeData.CurrentCases;
-        //        break;
-        //    }
-        //}
+        Place playerPlace = null;
+        bool isPlayer = false;
+        
+        foreach (Place p in placeManager.places)
+        {
+            if (p.placeData.IsPlayer)
+            {
+                playerPlace = p;
+                
+                if (playerPlace.placeData.Name.Equals(place.placeData.Name))
+                {
+                    Debug.Log(p.placeData.Name + " + " +place.placeData.Name);
+                    isPlayer = true;
+                }
+            }
+            
+        }
+
+        if (isPlayer)
+        {
+            cityNameText.text = place.placeData.Name;
+            cityMoneyText.text = "This is your city";
+            resourceText.enabled = false;
+            travelTimeText.enabled = false;
+            sendWagonBtn.enabled = false;
+            sendBoatBtn.enabled = false;
+        }
+        else
+        {
+            resourceText.enabled = true;
+            travelTimeText.enabled = true;
+            sendWagonBtn.enabled = true;
+            sendBoatBtn.enabled = true;
+            
+            cityNameText.text = place.placeData.Name;
+            cityMoneyText.text = "Money: " + place.placeData.Money;
+            resourceText.text = "Resource: " + place.placeData.HomeResource;
+            
+
+            if (playerPlace.placeData.IsConnectedWater(place.placeData))
+            {
+                sendWagonBtn.interactable = false;
+                
+                // calculate distance
+                double x = place.placeData.Latitude - playerPlace.placeData.Latitude;
+                x = Math.Pow(x, 2);
+        
+                double y = place.placeData.Longitude - playerPlace.placeData.Longitude;
+                y = Math.Pow(y, 2);
+
+                double distance = Math.Sqrt(x + y);
+                distance = Math.Abs(distance);
+                
+                int turnsToTravel = (int)(distance / 7) - travelTimeMod;
+                
+                if (turnsToTravel < 1)
+                {
+                    turnsToTravel = 1;
+                }
+                
+                travelTimeText.text = "Travel Time: " + turnsToTravel;
+
+                if (BoatAvailable())
+                {
+                    sendBoatBtn.interactable = true;
+                }
+                else
+                {
+                    sendBoatBtn.interactable = false;
+                }
+            }
+            else
+            {
+                sendBoatBtn.interactable = false;
+                
+                // calculate distance
+                double x = place.placeData.Latitude - playerPlace.placeData.Latitude;
+                x = Math.Pow(x, 2);
+        
+                double y = place.placeData.Longitude - playerPlace.placeData.Longitude;
+                y = Math.Pow(y, 2);
+
+                double distance = Math.Sqrt(x + y);
+                distance = Math.Abs(distance);
+
+                // wagon debuff
+                int turnsToTravel = (int)(distance / 7) - travelTimeMod + 2;
+                
+                if (turnsToTravel < 1)
+                {
+                    turnsToTravel = 1;
+                }
+        
+                travelTimeText.text = "Travel Time: " + turnsToTravel;
+            
+                if (WagonAvailable())
+                {
+                    sendWagonBtn.interactable = true;
+                }
+                else
+                {
+                    sendWagonBtn.interactable = false;
+                }
+            }
+        }
+        
+        
+        
+    }
+
+    bool BoatAvailable()
+    {
+        if (boats.Count > 0)
+        {
+            foreach (Boat boat in boats)
+            {
+                if (boat.Destination == null)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
+    }
+    
+    bool WagonAvailable()
+    {
+        if (wagons.Count > 0)
+        {
+            foreach (Wagon wagon in wagons)
+            {
+                if (wagon.Destination == null)
+                {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     void UpdatePlayerInfo()
