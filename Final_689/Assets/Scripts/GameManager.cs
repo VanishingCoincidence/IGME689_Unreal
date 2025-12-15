@@ -32,6 +32,7 @@ public class GameManager : MonoBehaviour
     private int availableBoats = 0;
     private int availableWagons = 0;
     private bool isBoat = false;
+    private bool isFBI = false;
 
     [Header("Modifiers")] 
     private int travelTimeMod = 0;
@@ -93,6 +94,7 @@ public class GameManager : MonoBehaviour
     public Button buyFBIButton;
     public TMP_Text boatCostText;
     public TMP_Text wagonCostText;
+    public TMP_Text fbiText;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -123,6 +125,7 @@ public class GameManager : MonoBehaviour
         
         // shop
         shopCanvas.enabled = false;
+        fbiText.enabled = false;
         buyBoatButton.onClick.AddListener(BuyBoat);
         buyWagonButton.onClick.AddListener(BuyWagon);
         buyWindmillButton.onClick.AddListener(BuyWindmill);
@@ -156,21 +159,59 @@ public class GameManager : MonoBehaviour
 
             if (!EventSystem.current.IsPointerOverGameObject())
             {
-                if (isHit && hit.collider.gameObject.GetComponent<Place>() != null)
+                if (isHit && hit.collider.gameObject.GetComponent<Place>() != null && !isFBI)
                 {
                     cityInfoCanvas.enabled = true;
                     FixCityInfo(hit.collider.gameObject.GetComponent<Place>());
                 }
+                else if (isHit && hit.collider.gameObject.GetComponent<Place>() != null && isFBI)
+                {
+                    Steal(hit.collider.gameObject.GetComponent<Place>());
+                }
                 else
                 {
                     cityInfoCanvas.enabled = false;
+                    fbiText.enabled = false;
                 }
             }
 
         }
     }
 
+    void Steal(Place place)
+    {
+        Place playerPlace = null;
+        bool isPlayer = false;
 
+        foreach (Place p in placeManager.places)
+        {
+            if (p.placeData.IsPlayer)
+            {
+                playerPlace = p;
+
+                if (playerPlace.placeData.Name.Equals(place.placeData.Name))
+                {
+                    isPlayer = true;
+                }
+            }
+
+        }
+
+        if (isPlayer)
+        {
+            fbiText.text = "That was a... choice.";
+        }
+        else
+        {
+            fbiText.enabled = false;
+            playerPlace.placeData.Money += place.placeData.Money;
+            place.placeData.Money = 0;
+            UpdatePlayerInfo();
+        }
+        
+        isFBI = false;
+    }
+    
     void FixCityInfo(Place place)
     {
         Place playerPlace = null;
@@ -285,7 +326,7 @@ public class GameManager : MonoBehaviour
         }
         
     }
-
+    
     void UpdateCost()
     {
         boatCostText.text = "$" + (transportCost - transportCostMod);
@@ -405,7 +446,7 @@ public class GameManager : MonoBehaviour
             else
             {
                 // player earn money
-                place.placeData.Money =+ (moneyPerTurn * moneyMod);
+                playerPlace.placeData.Money = playerPlace.placeData.Money + (moneyPerTurn * moneyMod);
             }
         }
         
@@ -526,7 +567,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("Bought boat");
                     Boat boat = new Boat(null, null, 0, 10);
                     boats.Add(boat);
-                    place.placeData.Money -= (transportCost - transportCostMod);
+                    place.placeData.Money = place.placeData.Money - (transportCost - transportCostMod);
                     transportCost += 5;
                     availableBoats++;
                     UpdatePlayerInfo();
@@ -547,7 +588,7 @@ public class GameManager : MonoBehaviour
                     Debug.Log("Bought wagon");
                     Wagon wagon = new Wagon(null, null, 0, 10);
                     wagons.Add(wagon);
-                    place.placeData.Money -= transportCost;
+                    place.placeData.Money = place.placeData.Money - (transportCost - transportCostMod);
                     transportCost += 5;
                     availableWagons++;
                     UpdatePlayerInfo();
@@ -617,9 +658,14 @@ public class GameManager : MonoBehaviour
     {
         if (Wheat >= 3 && Iron >= 3 && Stone >= 3)
         {
+            fbiText.text = "SELECT CITY TO STEAL FROM";
+            fbiText.enabled = true;
+            isFBI = true;
+            
             Clay -= 3;
             Iron -= 3;
             Stone -= 3;
+            
             UpdatePlayerInfo();
         }
     }
