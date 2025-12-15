@@ -456,7 +456,7 @@ public class GameManager : MonoBehaviour
             {
                 wagon.TurnsLeft--;
 
-                if (wagon.TurnsLeft < 0)
+                if (wagon.TurnsLeft <= 0)
                 {
                     if (wagon.Resource == "wheat")
                     {
@@ -491,7 +491,7 @@ public class GameManager : MonoBehaviour
             {
                 boat.TurnsLeft--;
 
-                if (boat.TurnsLeft < 0)
+                if (boat.TurnsLeft <= 0)
                 {
                     if (boat.Resource == "wheat")
                     {
