@@ -515,7 +515,7 @@ public class GameManager : MonoBehaviour
                     }
 
                     boat.Destination = null;
-                    availableWagons++;
+                    availableBoats++;
                 }
             }
         }
