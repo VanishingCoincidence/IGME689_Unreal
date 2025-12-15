@@ -15,6 +15,10 @@ public class GameManager : MonoBehaviour
     public Camera camera;
     public PlaceManager placeManager;
     private Place placeToGo;
+    private Place playerPlace;
+    private int distanceToGo;
+    private string resourceToGet = null;
+    public Transform spawnPosition;
     
     [Header("PlayerData")]
     public string cityString = null;
@@ -27,13 +31,14 @@ public class GameManager : MonoBehaviour
     private List<Wagon> wagons = new List<Wagon>();
     private int availableBoats = 0;
     private int availableWagons = 0;
+    private bool isBoat = false;
 
     [Header("Modifiers")] 
     private int travelTimeMod = 0;
     private int moneyPerTurn = 10;
-    private int moneyMod = 5;
+    private int moneyMod = 1;
     private int transportCost = 10;
-    private int transportCostMod = 1;
+    private int transportCostMod = 0;
     private int evilMoneyMod = 0;
     private int totalTurns = 20;
     private int turnsLeft = 20;
@@ -76,24 +81,26 @@ public class GameManager : MonoBehaviour
     public Image winImage;
     public Image loseImage;
     
-    public TMP_Text pointsInfo;
-    
-    private Place currentPlace = null;
-
-    public Canvas legendCanvas;
-    public Button legendButton;
-    
+    [Header("ShopCanvas")]
+    public Canvas shopCanvas;
+    public Button buyBoatButton;
+    public Button buyWagonButton;
+    public Button buyWindmillButton;
+    public Button buyFactoryButton;
+    public Button buyUnionButton;
+    public Button buySchoolButton;
+    public Button buyWeaponryButton;
+    public Button buyFBIButton;
+    public TMP_Text boatCostText;
+    public TMP_Text wagonCostText;
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        //placeCanvas.enabled = false;
-        //loseImage.enabled = false;
-        //winImage.enabled = false;
-        //legendCanvas.enabled = false;
         
         // tutorial info
         tutorialCanvas.enabled = true;
+        startButton.interactable = false;
         startButton.onClick.AddListener(ToSelect);
         
         // city select
@@ -108,17 +115,30 @@ public class GameManager : MonoBehaviour
         
         // other city info
         cityInfoCanvas.enabled = false;
+        sendTransportBtn.onClick.AddListener(SendTransportation);
         
         // end turn
         loseImage.enabled = false;
         winImage.enabled = false;
         
-        //StartCoroutine(DelayedAction());
+        // shop
+        shopCanvas.enabled = false;
+        buyBoatButton.onClick.AddListener(BuyBoat);
+        buyWagonButton.onClick.AddListener(BuyWagon);
+        buyWindmillButton.onClick.AddListener(BuyWindmill);
+        buyFactoryButton.onClick.AddListener(BuyFactory);
+        buyUnionButton.onClick.AddListener(BuyUnion);
+        buySchoolButton.onClick.AddListener(BuySchool);
+        buyWeaponryButton.onClick.AddListener(BuyWeaponry);
+        buyFBIButton.onClick.AddListener(BuyFBI);
+        
+        StartCoroutine(DelayedAction());
     }
     
     public IEnumerator DelayedAction()
     {
-        yield return new WaitForSeconds(1.3f); 
+        yield return new WaitForSeconds(5f); 
+        startButton.interactable = true;
 
     }
     
@@ -214,6 +234,10 @@ public class GameManager : MonoBehaviour
 
                 if (BoatAvailable())
                 {
+                    placeToGo = place;
+                    distanceToGo = turnsToTravel;
+                    isBoat = true;
+                    resourceToGet = place.placeData.HomeResource;
                     sendTransportBtn.interactable = true;
                 }
                 else
@@ -247,6 +271,10 @@ public class GameManager : MonoBehaviour
             
                 if (WagonAvailable())
                 {
+                    placeToGo = place;
+                    distanceToGo = turnsToTravel;
+                    isBoat = false;
+                    resourceToGet = place.placeData.HomeResource;
                     sendTransportBtn.interactable = true;
                 }
                 else
@@ -256,10 +284,52 @@ public class GameManager : MonoBehaviour
             }
         }
         
-        
-        
     }
 
+    void UpdateCost()
+    {
+        boatCostText.text = "$" + (transportCost - transportCostMod);
+        wagonCostText.text = "$" + (transportCost - transportCostMod);
+    }
+
+    void SendTransportation()
+    {
+        if (isBoat)
+        {
+            foreach (Boat boat in boats)
+            {
+                if (boat.Destination == null)
+                {
+                    boat.Destination = placeToGo.placeData.Name;
+                    boat.Amount = 10;
+                    boat.Resource = resourceToGet;
+                    boat.TurnsLeft = distanceToGo;
+                    availableBoats--;
+                    UpdatePlayerInfo();
+
+                    break;
+                }
+            }
+        }
+        else
+        {
+            foreach (Wagon wagon in wagons)
+            {
+                if (wagon.Destination == null)
+                {
+                    wagon.Destination = placeToGo.placeData.Name;
+                    wagon.Amount = 5;
+                    wagon.Resource = resourceToGet;
+                    wagon.TurnsLeft = distanceToGo;
+                    availableWagons--;
+                    UpdatePlayerInfo();
+
+                    break;
+                }
+            }
+        }
+    }
+    
     bool BoatAvailable()
     {
         if (boats.Count > 0)
@@ -326,7 +396,7 @@ public class GameManager : MonoBehaviour
             // random money added to each city
             if (!place.placeData.IsPlayer)
             {
-                place.placeData.Money = place.placeData.Money + UnityEngine.Random.Range(10, 21) - evilMoneyMod;
+                place.placeData.Money = place.placeData.Money + UnityEngine.Random.Range(0, 11 + (totalTurns - turnsLeft)) - evilMoneyMod;
                 if (place.placeData.Money <= 0)
                 {
                     place.placeData.Money = 1;
@@ -336,6 +406,76 @@ public class GameManager : MonoBehaviour
             {
                 // player earn money
                 place.placeData.Money =+ (moneyPerTurn * moneyMod);
+            }
+        }
+        
+        foreach (Wagon wagon in wagons)
+        {
+            if (wagon.Destination != null)
+            {
+                wagon.TurnsLeft--;
+
+                if (wagon.TurnsLeft < 0)
+                {
+                    if (wagon.Resource == "wheat")
+                    {
+                        Wheat += wagon.Amount;
+                    }
+                    else if (wagon.Resource == "wood")
+                    {
+                        Wood += wagon.Amount;
+                    }
+                    else if (wagon.Resource == "stone")
+                    {
+                        Stone += wagon.Amount;
+                    }
+                    else if (wagon.Resource == "iron")
+                    {
+                        Iron += wagon.Amount;
+                    }
+                    else if (wagon.Resource == "clay")
+                    {
+                        Clay += wagon.Amount;
+                    }
+
+                    wagon.Destination = null;
+                    availableWagons++;
+                }
+            }
+        }
+        
+        foreach (Boat boat in boats)
+        {
+            if (boat.Destination != null)
+            {
+                boat.TurnsLeft--;
+
+                if (boat.TurnsLeft < 0)
+                {
+                    if (boat.Resource == "wheat")
+                    {
+                        Wheat += boat.Amount;
+                    }
+                    else if (boat.Resource == "wood")
+                    {
+                        Wood += boat.Amount;
+                    }
+                    else if (boat.Resource == "stone")
+                    {
+                        Stone += boat.Amount;
+                    }
+                    else if (boat.Resource == "iron")
+                    {
+                        Iron += boat.Amount;
+                    }
+                    else if (boat.Resource == "clay")
+                    {
+                        Clay += boat.Amount;
+                    }
+
+                    boat.Destination = null;
+                    availableWagons++;
+                }
             }
         }
         
@@ -375,6 +515,115 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    void BuyBoat()
+    {
+        foreach (Place place in placeManager.places)
+        {
+            if (place.placeData.IsPlayer)
+            {
+                if (place.placeData.Money >= transportCost - transportCostMod)
+                {
+                    Debug.Log("Bought boat");
+                    Boat boat = new Boat(null, null, 0, 10);
+                    boats.Add(boat);
+                    place.placeData.Money -= (transportCost - transportCostMod);
+                    transportCost += 5;
+                    availableBoats++;
+                    UpdatePlayerInfo();
+                    UpdateCost();
+                }
+            }
+        }
+    }
+
+    void BuyWagon()
+    {
+        foreach (Place place in placeManager.places)
+        {
+            if (place.placeData.IsPlayer)
+            {
+                if (place.placeData.Money >= transportCost)
+                {
+                    Debug.Log("Bought wagon");
+                    Wagon wagon = new Wagon(null, null, 0, 10);
+                    wagons.Add(wagon);
+                    place.placeData.Money -= transportCost;
+                    transportCost += 5;
+                    availableWagons++;
+                    UpdatePlayerInfo();
+                    UpdateCost();
+                }
+            }
+        }
+    }
+
+    void BuyWindmill()
+    {
+        if (Wheat >= 3)
+        {
+            moneyPerTurn += 5;
+            Wheat -= 3;
+            UpdatePlayerInfo();
+        }
+    }
+
+    void BuyFactory()
+    {
+        if (Wood >= 2 && Iron >= 1)
+        {
+            moneyMod++;
+            Wood -= 2;
+            Iron -= 1;
+            UpdatePlayerInfo();
+        }
+    }
+
+    void BuyUnion()
+    {
+        if (Wheat >= 2 && Stone >= 2)
+        {
+            travelTimeMod++;
+            Wheat -= 2;
+            Stone -= 2;
+            UpdatePlayerInfo();
+        }
+    }
+
+    void BuySchool()
+    {
+        if (Clay >= 2 && Wood >= 2)
+        {
+            transportCostMod++;
+            Clay -= 2;
+            Wood -= 2;
+            UpdatePlayerInfo();
+            UpdateCost();
+        }
+    }
+
+    void BuyWeaponry()
+    {
+        if (Iron >= 2 && Clay >= 2 && Stone >= 1)
+        {
+            evilMoneyMod++;
+            Clay -= 2;
+            Iron -= 2;
+            Stone--;
+            UpdatePlayerInfo();
+        }
+    }
+
+    void BuyFBI()
+    {
+        if (Wheat >= 3 && Iron >= 3 && Stone >= 3)
+        {
+            Clay -= 3;
+            Iron -= 3;
+            Stone -= 3;
+            UpdatePlayerInfo();
+        }
+    }
+
     void ToSelect()
     {
         tutorialCanvas.enabled = false;
@@ -382,11 +631,34 @@ public class GameManager : MonoBehaviour
     }
     void Proceed()
     {
+        playerPlace.placeData.IsPlayer = true;
+
+        if (playerPlace.placeData.HomeResource.Equals("wheat"))
+        {
+            Wheat += 10;
+        }
+        else if (playerPlace.placeData.HomeResource.Equals("wood"))
+        {
+            Wood += 10;
+        }
+        else if (playerPlace.placeData.HomeResource.Equals("stone"))
+        {
+            Stone += 10;
+        }
+        else if (playerPlace.placeData.HomeResource.Equals("iron"))
+        {
+            Iron += 10;
+        }
+        else if (playerPlace.placeData.HomeResource.Equals("clay"))
+        {
+            Clay += 10;
+        }
+        
         citySelectCanvas.enabled = false;
         UpdatePlayerInfo();
+        shopCanvas.enabled = true;
         playerInfoCanvas.enabled = true;
     }
-    
     void SelectCity(int index)
     {
         cityString = " " + selectCityDropdown.options[index].text;
@@ -395,30 +667,8 @@ public class GameManager : MonoBehaviour
         {
             if (place.placeData.Name.Equals(cityString))
             {
-                place.placeData.IsPlayer = true;
-
-                if (place.placeData.HomeResource.Equals("wheat"))
-                {
-                    Wheat += 10;
-                }
-                else if (place.placeData.HomeResource.Equals("wood"))
-                {
-                    Wood += 10;
-                }
-                else if (place.placeData.HomeResource.Equals("stone"))
-                {
-                    Stone += 10;
-                }
-                else if (place.placeData.HomeResource.Equals("iron"))
-                {
-                    Iron += 10;
-                }
-                else if (place.placeData.HomeResource.Equals("clay"))
-                {
-                    Clay += 10;
-                }
+                playerPlace = place;
                 
-                break;
             }
         }
 
