@@ -346,6 +346,7 @@ public class GameManager : MonoBehaviour
                     boat.Resource = resourceToGet;
                     boat.TurnsLeft = distanceToGo;
                     availableBoats--;
+                    sendTransportBtn.interactable = false;
                     UpdatePlayerInfo();
 
                     break;
@@ -363,6 +364,7 @@ public class GameManager : MonoBehaviour
                     wagon.Resource = resourceToGet;
                     wagon.TurnsLeft = distanceToGo;
                     availableWagons--;
+                    sendTransportBtn.interactable = false;
                     UpdatePlayerInfo();
 
                     break;
