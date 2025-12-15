@@ -46,7 +46,7 @@ public class PlaceManager : MonoBehaviour
     
     public IEnumerator DelayedAction()
     {
-        yield return new WaitForSeconds(3f); 
+        yield return new WaitForSeconds(5f); 
 
         SpawnPlaces();
         SpawnRoads();
@@ -94,7 +94,6 @@ public class PlaceManager : MonoBehaviour
     {
         foreach (var road in dataLoader.roadList)
         {
-            //Debug.Log(road.Name);
             LineRenderer connectionPath = Instantiate(roadPrefab, spawnPosition).GetComponent<LineRenderer>();
             connectionPath.positionCount = road.Coordinates.Count;
             

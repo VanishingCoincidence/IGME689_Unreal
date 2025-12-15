@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="a5ce9411-020b-40b2-b059-96ca58216a12" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.idea.Final_689/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.idea.Final_689/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Place.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Place.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/River.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/River.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Prefabs/Road.prefab" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Prefabs/Road.prefab" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/DataLoader.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/DataLoader.cs" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Assets/Scripts/Place.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/Place.cs" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Game.unity" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Game.unity" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/GameManager.cs" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Assets/Scripts/PlaceManager.cs" beforeDir="false" afterPath="$PROJECT_DIR$/Assets/Scripts/PlaceManager.cs" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -113,6 +109,7 @@
       <workItem from="1765658175905" duration="8876000" />
       <workItem from="1765667419857" duration="2000" />
       <workItem from="1765667447487" duration="15366000" />
+      <workItem from="1765767351301" duration="322000" />
     </task>
     <servers />
   </component>

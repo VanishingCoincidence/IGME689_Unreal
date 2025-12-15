@@ -6,7 +6,9 @@ using Esri.GameEngine.Geometry;
 using TMPro;
 using Unity.VisualScripting;
 using UnityEngine.EventSystems;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
+using Random = System.Random;
 
 public class GameManager : MonoBehaviour
 {
@@ -15,8 +17,6 @@ public class GameManager : MonoBehaviour
     private Place placeToGo;
     
     [Header("PlayerData")]
-    private int currentPlayerPoints = 6;
-    private int totalPlayerPoints = 6;
     public string cityString = null;
     public int Wood = 0;
     public int Wheat = 0;
@@ -31,10 +31,12 @@ public class GameManager : MonoBehaviour
     [Header("Modifiers")] 
     private int travelTimeMod = 0;
     private int moneyPerTurn = 10;
-    private int moneyMod = 1;
+    private int moneyMod = 5;
     private int transportCost = 10;
     private int transportCostMod = 1;
     private int evilMoneyMod = 0;
+    private int totalTurns = 20;
+    private int turnsLeft = 20;
 
     [Header("InstructionsCanvas")]
     public Canvas tutorialCanvas;
@@ -58,6 +60,7 @@ public class GameManager : MonoBehaviour
     public TMP_Text wagonsText;
     public TMP_Text boatAvailableText;
     public TMP_Text wagonsAvailableText;
+    public TMP_Text turnText;
     
     [Header("OtherCityCanvas")]
     public Canvas cityInfoCanvas;
@@ -65,18 +68,21 @@ public class GameManager : MonoBehaviour
     public TMP_Text cityMoneyText;
     public TMP_Text resourceText;
     public TMP_Text travelTimeText;
-    public Button sendBoatBtn;
-    public Button sendWagonBtn;
+    public Button sendTransportBtn;
+    public TMP_Text sendTransportText;
+    
+    [Header("EndTurnCanvas")]
+    public Button endTurnButton;
+    public Image winImage;
+    public Image loseImage;
     
     public TMP_Text pointsInfo;
-    public Button endTurnButton;
+    
     private Place currentPlace = null;
 
     public Canvas legendCanvas;
     public Button legendButton;
-
-    public Image winImage;
-    public Image loseImage;
+    
     
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -98,9 +104,14 @@ public class GameManager : MonoBehaviour
         
         //player info
         playerInfoCanvas.enabled = false;
+        endTurnButton.onClick.AddListener(EndTurn);
         
         // other city info
         cityInfoCanvas.enabled = false;
+        
+        // end turn
+        loseImage.enabled = false;
+        winImage.enabled = false;
         
         //StartCoroutine(DelayedAction());
     }
@@ -109,17 +120,11 @@ public class GameManager : MonoBehaviour
     {
         yield return new WaitForSeconds(1.3f); 
 
-        //UpdateTotalCases();
     }
     
     // Update is called once per frame
     void Update()
     {
-        if (currentPlayerPoints <= 0)
-        {
-            //EndTurn();
-        }
-        
         if (Input.GetMouseButtonDown(0))
         {
             Vector3 mousePosition = Input.mousePosition;
@@ -159,7 +164,6 @@ public class GameManager : MonoBehaviour
                 
                 if (playerPlace.placeData.Name.Equals(place.placeData.Name))
                 {
-                    Debug.Log(p.placeData.Name + " + " +place.placeData.Name);
                     isPlayer = true;
                 }
             }
@@ -172,15 +176,13 @@ public class GameManager : MonoBehaviour
             cityMoneyText.text = "This is your city";
             resourceText.enabled = false;
             travelTimeText.enabled = false;
-            sendWagonBtn.enabled = false;
-            sendBoatBtn.enabled = false;
+            sendTransportBtn.interactable = false;
         }
         else
         {
             resourceText.enabled = true;
             travelTimeText.enabled = true;
-            sendWagonBtn.enabled = true;
-            sendBoatBtn.enabled = true;
+            sendTransportBtn.enabled = true;
             
             cityNameText.text = place.placeData.Name;
             cityMoneyText.text = "Money: " + place.placeData.Money;
@@ -189,7 +191,7 @@ public class GameManager : MonoBehaviour
 
             if (playerPlace.placeData.IsConnectedWater(place.placeData))
             {
-                sendWagonBtn.interactable = false;
+                sendTransportText.text = "Send Boat" ;
                 
                 // calculate distance
                 double x = place.placeData.Latitude - playerPlace.placeData.Latitude;
@@ -212,16 +214,16 @@ public class GameManager : MonoBehaviour
 
                 if (BoatAvailable())
                 {
-                    sendBoatBtn.interactable = true;
+                    sendTransportBtn.interactable = true;
                 }
                 else
                 {
-                    sendBoatBtn.interactable = false;
+                    sendTransportBtn.interactable = false;
                 }
             }
             else
             {
-                sendBoatBtn.interactable = false;
+                sendTransportText.text = "Send Wagon" ;
                 
                 // calculate distance
                 double x = place.placeData.Latitude - playerPlace.placeData.Latitude;
@@ -245,11 +247,11 @@ public class GameManager : MonoBehaviour
             
                 if (WagonAvailable())
                 {
-                    sendWagonBtn.interactable = true;
+                    sendTransportBtn.interactable = true;
                 }
                 else
                 {
-                    sendWagonBtn.interactable = false;
+                    sendTransportBtn.interactable = false;
                 }
             }
         }
@@ -298,6 +300,7 @@ public class GameManager : MonoBehaviour
             
             if (place.placeData.Name.Equals(cityString))
             {
+                turnText.text = turnsLeft + "/" + totalTurns + " turns left"; 
                 playerNameText.text = cityString;
                 moneyText.text = "Money: " + place.placeData.Money;
                 wheatText.text = "Wheat: " + Wheat;
@@ -316,9 +319,60 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    void UpdatePoints()
+    void EndTurn()
     {
-        pointsInfo.text = "Points: " + currentPlayerPoints;
+        foreach (Place place in placeManager.places)
+        {
+            // random money added to each city
+            if (!place.placeData.IsPlayer)
+            {
+                place.placeData.Money = place.placeData.Money + UnityEngine.Random.Range(10, 21) - evilMoneyMod;
+                if (place.placeData.Money <= 0)
+                {
+                    place.placeData.Money = 1;
+                }
+            }
+            else
+            {
+                // player earn money
+                place.placeData.Money =+ (moneyPerTurn * moneyMod);
+            }
+        }
+        
+        // end game
+        if (turnsLeft <= 0)
+        {
+            EndGame();
+        }
+        
+        turnsLeft--;
+        
+        UpdatePlayerInfo();
+        cityInfoCanvas.enabled = false;
+    }
+
+    void EndGame()
+    {
+        string hasMostMoney = null;
+        int mostMoney = 0;
+
+        foreach (Place place in placeManager.places)
+        {
+            if (place.placeData.Money > mostMoney)
+            {
+                hasMostMoney = place.placeData.Name;
+                mostMoney = place.placeData.Money;
+            }
+        }
+
+        if (hasMostMoney.Equals(cityString))
+        {
+            winImage.enabled = true;
+        }
+        else
+        {
+            loseImage.enabled = true;
+        }
     }
 
     void ToSelect()
